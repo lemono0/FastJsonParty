@@ -1,0 +1,6 @@
+version: '2'
+services:
+ web:
+   image: lemono0/fastjsonparty:1247-jndi-waf
+   ports:
+    - "80:80"
