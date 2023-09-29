@@ -11,7 +11,7 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 环境启动后，访问对应ip的80端口：
 
-![image](images\1.png)
+![image](images/1.png)
 
 设定场景为黑盒利用，部分环境需要给到jar包反编译分析。
 
