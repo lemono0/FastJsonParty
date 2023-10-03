@@ -15,6 +15,8 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 设定场景为黑盒利用，部分环境需要给到jar包反编译分析。
 
+总结了一些关于FastJson全版本常用漏洞利用Poc,可搭配食用：[Fastjson全版本检测及利用-Poc](Fastjson全版本检测及利用-Poc.md) 
+
 环境使用后请销毁,否则可能会冲突：`docker-compose down` 
 
 And have fun!
