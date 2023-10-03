@@ -19,4 +19,6 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 环境使用后请销毁,否则可能会冲突：`docker-compose down` 
 
+每个机器根目录下都藏有flag文件，去尝试获取吧！
+
 And have fun!
