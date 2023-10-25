@@ -107,4 +107,4 @@
 
 反弹shell成功：
 
-![image-20231021202442210](C:\Users\Hui\AppData\Roaming\Typora\typora-user-images\image-20231021202442210.png)
+
