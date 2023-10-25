@@ -46,7 +46,7 @@ payload直接打：测试读文件(验证漏洞是否存在)
 ![image.png](https://cdn.nlark.com/yuque/0/2023/png/26045928/1698204733148-bb40c43b-cbfc-4525-a790-ee899176bf64.png#averageHue=%23fbfaf8&clientId=u54d26ebe-4ccd-4&from=paste&height=276&id=u744531d4&originHeight=345&originWidth=1212&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=74904&status=done&style=none&taskId=u6d207e65-26f1-41af-83dd-f25fb897d32&title=&width=969.6)
 ok，下一步文件写，需要文件写那肯定得知道网站在tomcat下的绝对路径。如果跑tomcat的默认安装目录还是有可能成功，但是几率太小了，还是从文件读这里入手。
 从上面的payload中可以看到读文件用到的是`file:///etc/passwd`file协议，在Java中file协议不仅能用来读文件，也可以用来列目录，这就为探测tomcat绝对路径提供了很好的条件。
-写一个python脚本跑字节就可以了：[writefile.py](readfile.py)
+写一个python脚本跑字节就可以了：[readfile.py](readfile.py)
 
 最后就能跑出来绝对路径为`/usr/local/tomcat/apache-tomcat-8.5.95/webapps`  
 (tips:虽然可以用file协议直接读取到其中的flag，但是我建议你不要这样做orz  非预期不想修了)
