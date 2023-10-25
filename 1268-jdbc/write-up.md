@@ -66,7 +66,8 @@
 
 这里的话因为mysql-fake-server调用反序列化模块的原理是需要我们传入ysoserial工具然后执行命令获取数据并发送，但是在本身的ysoserial工具中并没有加入fastjson这条链的payload，所以需要在ysoserial中加入fastjson这条链。
 
-这里是我添加FastJson1链后重新编译的ysoserial： [ysoserial-0.0.6-SNAPSHOT-all.jar](https://bolean.yuque.com/attachments/yuque/0/2023/jar/26045928/1693374838342-b00b08b7-3154-4424-baa9-90d8f68e5258.jar)
+这里是我添加FastJson1链后重新编译的ysoserial： [ysoserial-0.0.6-SNAPSHOT-all.jar](https://pan.baidu.com/s/1QQs0dH7I7UAz6r0BYzDGsg?pwd=7ji2)
+当然也可以用其他师傅魔改后的ysoserial
 
 ![img](https://cdn.nlark.com/yuque/0/2023/png/26045928/1693375003333-f6be335c-9239-49fc-9baa-08d856bf804e.png)
 
