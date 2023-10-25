@@ -21,6 +21,6 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 部分环境wp目前还未给出,打算过段时间放出，也欢迎提交你的wp和建议。
 
-:sparkling_heart: :如果感觉有用，还请多多star :star: Orz
+:sparkling_heart: 如果感觉有用，还请多多star :star: Orz
 
 And Enjoy FastJson Party!
