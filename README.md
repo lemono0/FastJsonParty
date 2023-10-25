@@ -19,6 +19,6 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 每个机器根目录下都藏有flag文件，去尝试获取吧！
 
-部分wp目前还未给出，后续会慢慢完善，欢迎提交你的wp和建议。
+部分环境wp目前还未给出,打算过段时间放出，也欢迎提交你的wp和建议。
 
 And Enjoy FastJson Party!
