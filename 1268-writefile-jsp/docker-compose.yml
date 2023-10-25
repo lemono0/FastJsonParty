@@ -1,0 +1,7 @@
+version: '2'
+services:
+ web:
+   image: lemono0/fastjsonparty:1268-write-jsp
+  #  build: ./
+   ports: 
+    - "80:8080"
