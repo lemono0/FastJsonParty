@@ -24,35 +24,35 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 [1247-jndi](1247-jndi)
 
-[1247-jndi-waf](tree/main/1247-jndi-waf)
+[1247-jndi-waf](1247-jndi-waf)
 
-[1247-waf-c3p0](tree/main/1247-waf-c3p0)
+[1247-waf-c3p0](1247-waf-c3p0)
 
-[1245-jdk8u342](tree/main/1245-jdk8u342)
+[1245-jdk8u342](1245-jdk8u342)
 
 
 
 ## FastJson 1.2.68
 
-[1268-readfile](tree/main/1268-readfile)
+[1268-readfile](1268-readfile)
 
-[1268-jkd11-writefile](tree/main/1268-jkd11-writefile)
+[1268-jkd11-writefile](1268-jkd11-writefile)
 
-[1268-jdk8-writefile](tree/main/1268-jdk8-writefile)
+[1268-jdk8-writefile](1268-jdk8-writefile)
 
-[1268-writefile-jsp](tree/main/1268-writefile-jsp)
+[1268-writefile-jsp](1268-writefile-jsp)
 
-[1268-writefile-no-network](tree/main/1268-writefile-no-network)
+[1268-writefile-no-network](1268-writefile-no-network)
 
-[1268-jdbc](tree/main/1268-jdbc)
+[1268-jdbc](1268-jdbc)
 
 
 
 ## FastJson 1.2.80
 
-[1280-groovy](tree/main/1280-groovy)
+[1280-groovy](1280-groovy)
 
-[1283-serialize](tree/main/1283-serialize)
+[1283-serialize](1283-serialize)
 
 
 
