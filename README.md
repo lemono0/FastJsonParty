@@ -22,7 +22,7 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 ## FastJson 1.2.47
 
-[1247-jndi](tree/main/1247-jndi)
+[1247-jndi](1247-jndi)
 
 [1247-jndi-waf](tree/main/1247-jndi-waf)
 
