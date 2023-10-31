@@ -18,7 +18,7 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 环境使用后请销毁,否则可能会冲突：`docker compose down` 
 
-整理一下靶场顺序：
+整理一下靶场顺序：(根据利用特点分成三个大类)
 
 ## FastJson 1.2.47
 
