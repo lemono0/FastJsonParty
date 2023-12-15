@@ -337,8 +337,14 @@ Centos下可直接命令行获取：`cat charsets.jar | openssl zlib | base64 -w
 FastJsonParty对应环境：[1268-writefile-no-network](https://github.com/lemono0/FastJsonParty/tree/main/1268-writefile-no-network) 
 
 ## Reference
+
 Commons IO 2.x 写文件利用链挖掘分析：[https://mp.weixin.qq.com/s/6fHJ7s6Xo4GEdEGpKFLOyg](https://mp.weixin.qq.com/s/6fHJ7s6Xo4GEdEGpKFLOyg)
+
 写文件RCE：[https://mp.weixin.qq.com/s/HMlaMPn4LK3GMs3RvK6ZRA](https://mp.weixin.qq.com/s/HMlaMPn4LK3GMs3RvK6ZRA)
+
 三梦：[https://threedr3am.github.io/2021/04/13/JDK8%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84Fastjson%20RCE/](https://threedr3am.github.io/2021/04/13/JDK8%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84Fastjson%20RCE/)
+
 [https://mp.weixin.qq.com/s/WbYi7lPEvFg-vAUB4Nlvew](https://mp.weixin.qq.com/s/WbYi7lPEvFg-vAUB4Nlvew)
+
 [https://forum.butian.net/share/1623](https://forum.butian.net/share/1623)
+
