@@ -46,7 +46,7 @@ https://www.runoob.com/docker/docker-mirror-acceleration.html
 
 [1268-jdbc](1268-jdbc)
 
-
+1268写文件利用另外写了一篇，可搭配使用：[FastJson 1.2.68写文件RCE探究](FastJson 1.2.68写文件RCE探究.md) 
 
 ## FastJson 1.2.80
 
