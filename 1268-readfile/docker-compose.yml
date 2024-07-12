@@ -1,6 +1,6 @@
 version: '2'
 services:
  web:
-   image: lemono0/fastjsonparty:1280-groovy
+   image: lemono0/fastjsonparty:1268-readfile
    ports: 
     - "80:80"
